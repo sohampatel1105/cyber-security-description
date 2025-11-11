@@ -1,0 +1,347 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Cybersecurity Hub: Attacks, Prevention & Encryption</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" />
+  <style>
+    /* 🌙 Base Styling */
+    body {
+      font-family: "Poppins", sans-serif;
+      margin: 0;
+      background-color: #0b132b;
+      color: white;
+      overflow-x: hidden;
+      transition: 0.5s ease;
+    }
+
+    /* 🌈 Smooth Animations */
+    * {
+      transition: all 0.3s ease-in-out;
+    }
+
+    header {
+      text-align: center;
+      padding: 2rem;
+      background: linear-gradient(135deg, #1c2541, #3a506b);
+      box-shadow: 0 0 20px #1c2541;
+      animation: fadeInDown 1s ease;
+    }
+
+    @keyframes fadeInDown {
+      from {
+        opacity: 0;
+        transform: translateY(-20px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    header h1 {
+      font-size: 2.3rem;
+      margin-bottom: 0.5rem;
+    }
+
+    header p {
+      color: #a9a9a9;
+      margin-bottom: 1rem;
+    }
+
+    nav {
+      display: flex;
+      justify-content: center;
+      flex-wrap: wrap;
+      background-color: #1c2541;
+      padding: 0.8rem;
+    }
+
+    nav a {
+      text-decoration: none;
+      color: white;
+      margin: 0.5rem;
+      padding: 0.5rem 1rem;
+      background: #3a506b;
+      border-radius: 20px;
+      transition: 0.3s;
+    }
+
+    nav a:hover {
+      background: #5bc0be;
+      color: #0b132b;
+      transform: scale(1.1);
+    }
+
+    section {
+      padding: 2rem;
+      text-align: center;
+      animation: fadeIn 1s ease forwards;
+      opacity: 0;
+    }
+
+    @keyframes fadeIn {
+      to {
+        opacity: 1;
+      }
+    }
+
+    section h2 {
+      font-size: 1.8rem;
+      margin-bottom: 1rem;
+      color: #5bc0be;
+      text-transform: uppercase;
+      letter-spacing: 2px;
+    }
+
+    .card {
+      background: #1c2541;
+      padding: 1.5rem;
+      border-radius: 15px;
+      margin: 1rem auto;
+      max-width: 800px;
+      box-shadow: 0 0 15px rgba(91, 192, 190, 0.25);
+      text-align: left;
+      transform: translateY(20px);
+      opacity: 0;
+      animation: slideUp 0.8s ease forwards;
+    }
+
+    @keyframes slideUp {
+      to {
+        transform: translateY(0);
+        opacity: 1;
+      }
+    }
+
+    .card h3 {
+      color: #5bc0be;
+    }
+
+    ul {
+      text-align: left;
+    }
+
+    footer {
+      text-align: center;
+      padding: 1rem;
+      background: #1c2541;
+      color: #ccc;
+      font-size: 0.9rem;
+      margin-top: 2rem;
+    }
+
+    #darkModeToggle {
+      background: rgba(255,255,255,0.2);
+      color: white;
+      border: 1px solid white;
+      padding: 0.5rem 1rem;
+      border-radius: 25px;
+      cursor: pointer;
+      transition: 0.3s;
+    }
+
+    #darkModeToggle:hover {
+      background: #5bc0be;
+      color: #0b132b;
+    }
+
+    .dark-mode {
+      background-color: #f1f1f1;
+      color: #111;
+    }
+
+    .dark-mode nav {
+      background-color: #ddd;
+    }
+
+    .dark-mode nav a {
+      background: #bbb;
+      color: black;
+    }
+
+    .dark-mode header {
+      background: linear-gradient(135deg, #ddd, #ccc);
+    }
+
+    .highlight {
+      color: #5bc0be;
+      font-weight: bold;
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <h1><i class="fas fa-shield-alt"></i> Cybersecurity Hub</h1>
+    <p>Learn about Cyber Attacks, Prevention, Cryptography & Career Paths</p>
+    <button id="darkModeToggle"><i class="fas fa-moon"></i> Toggle Dark Mode</button>
+  </header>
+
+  <nav>
+    <a href="#home"><i class="fas fa-home"></i> Home</a>
+    <a href="#cyberdomain"><i class="fas fa-globe"></i> Cyber Domain</a>
+    <a href="#attacks"><i class="fas fa-bug"></i> Attacks</a>
+    <a href="#prevention"><i class="fas fa-shield"></i> Prevention</a>
+    <a href="#ciphers"><i class="fas fa-lock"></i> Ciphers</a>
+    <a href="#emerging"><i class="fas fa-rocket"></i> Emerging</a>
+  </nav>
+
+  <section id="home">
+    <h2><i class="fas fa-info-circle"></i> Welcome</h2>
+    <p>Cybersecurity is the protection of digital systems, data, and networks from unauthorized access or attacks. This platform helps you learn in an interactive and simple way — covering attacks, encryption, prevention, and even cybersecurity careers!</p>
+  </section>
+
+  <section id="cyberdomain">
+    <h2><i class="fas fa-network-wired"></i> Cybersecurity Domain</h2>
+
+    <div class="card">
+      <h3><i class="fas fa-user-shield"></i> What is Cybersecurity?</h3>
+      <p>Cybersecurity protects computers, servers, mobile devices, electronic systems, and data from malicious attacks. It is essential for individuals, companies, and governments to safeguard privacy and critical infrastructure.</p>
+    </div>
+
+    <div class="card">
+      <h3><i class="fas fa-briefcase"></i> Career Fields</h3>
+      <ul>
+        <li><span class="highlight">Ethical Hacker:</span> Finds vulnerabilities in systems before real hackers do.</li>
+        <li><span class="highlight">Security Analyst:</span> Monitors network activity and prevents breaches.</li>
+        <li><span class="highlight">Forensics Expert:</span> Investigates digital crimes and traces hackers.</li>
+        <li><span class="highlight">Penetration Tester:</span> Performs authorized attacks to find weak spots.</li>
+        <li><span class="highlight">Cryptographer:</span> Designs algorithms to secure communications.</li>
+      </ul>
+    </div>
+
+    <div class="card">
+      <h3><i class="fas fa-graduation-cap"></i> Important Skills</h3>
+      <ul>
+        <li>Networking basics (IP, DNS, protocols)</li>
+        <li>Operating Systems (Windows, Linux)</li>
+        <li>Programming (Python, C, Java)</li>
+        <li>Knowledge of Firewalls, IDS, and VPNs</li>
+        <li>Problem-solving and critical thinking</li>
+      </ul>
+    </div>
+
+    <div class="card">
+      <h3><i class="fas fa-trophy"></i> Why It Matters</h3>
+      <p>With increasing cybercrimes, every sector — banking, healthcare, and government — relies on cybersecurity professionals to protect data and maintain digital trust.</p>
+    </div>
+  </section>
+
+  <!-- 🦠 Old + New Attacks Section -->
+  <section id="attacks">
+    <h2><i class="fas fa-skull-crossbones"></i> Common Cyber Attacks</h2>
+
+    <div class="card">
+      <h3><i class="fas fa-envelope-open-text"></i> Phishing Attack</h3>
+      <p><strong>Meaning:</strong> Fake emails or websites trick people into giving passwords or card details.</p>
+      <p><strong>Example:</strong> “Your bank account is locked! Click here” — but it’s fake.</p>
+      <p><strong>Prevention:</strong> Check sender’s email, and don’t click suspicious links.</p>
+    </div>
+
+    <div class="card">
+      <h3><i class="fas fa-virus"></i> Malware Attack</h3>
+      <p><strong>Meaning:</strong> Harmful software that damages or steals data.</p>
+      <p><strong>Example:</strong> A free game that secretly installs spyware.</p>
+      <p><strong>Prevention:</strong> Use antivirus and update your system regularly.</p>
+    </div>
+
+    <div class="card">
+      <h3><i class="fas fa-network-wired"></i> DDoS Attack</h3>
+      <p><strong>Meaning:</strong> Hackers flood a website with traffic to make it crash.</p>
+      <p><strong>Example:</strong> Millions of fake requests overload a website.</p>
+      <p><strong>Prevention:</strong> Use firewalls and load balancers.</p>
+    </div>
+
+    <div class="card">
+      <h3><i class="fas fa-laptop-code"></i> SQL Injection</h3>
+      <p><strong>Meaning:</strong> Hackers inject SQL code to access a database.</p>
+      <p><strong>Example:</strong> Typing `' OR '1'='1` bypasses a login form.</p>
+      <p><strong>Prevention:</strong> Use input validation and parameterized queries.</p>
+    </div>
+  </section>
+
+  <section id="prevention">
+    <h2><i class="fas fa-shield-alt"></i> Cybersecurity Prevention</h2>
+    <div class="card">
+      <h3><i class="fas fa-lock"></i> Basic Protection</h3>
+      <ul>
+        <li>Use strong, unique passwords with letters, numbers, and symbols.</li>
+        <li>Turn on Two-Factor Authentication (2FA).</li>
+        <li>Update your system and applications regularly.</li>
+        <li>Install antivirus and firewall protection.</li>
+        <li>Use VPN for secure connections on public Wi-Fi.</li>
+      </ul>
+    </div>
+
+    <div class="card">
+      <h3><i class="fas fa-user-secret"></i> Advanced Protection</h3>
+      <ul>
+        <li>Use intrusion detection systems (IDS) and security audits.</li>
+        <li>Encrypt sensitive files and use digital signatures.</li>
+        <li>Monitor network traffic for unusual activities.</li>
+        <li>Regularly back up data to offline storage.</li>
+        <li>Educate employees about phishing and social engineering.</li>
+      </ul>
+    </div>
+  </section>
+
+  <section id="ciphers">
+    <h2><i class="fas fa-lock"></i> Encryption & Cipher Examples</h2>
+
+    <div class="card">
+      <h3><i class="fas fa-key"></i> Caesar Cipher</h3>
+      <p>Shifts each letter by a fixed number. Example: Shift by 3 — A→D, B→E. “HELLO” → “KHOOR”.</p>
+    </div>
+
+    <div class="card">
+      <h3><i class="fas fa-random"></i> AES (Advanced Encryption Standard)</h3>
+      <p>Modern symmetric encryption used by banks and governments. Uses 128/256-bit keys for secure data encryption.</p>
+    </div>
+
+    <div class="card">
+      <h3><i class="fas fa-user-lock"></i> RSA Encryption</h3>
+      <p>Asymmetric encryption using public/private key pairs. Used in HTTPS, digital signatures, and secure emails.</p>
+    </div>
+
+    <div class="card">
+      <h3><i class="fas fa-hashtag"></i> Hashing (SHA-256)</h3>
+      <p>One-way encryption to protect passwords. “password123” → long irreversible code (hash).</p>
+    </div>
+  </section>
+
+  <section id="emerging">
+    <h2><i class="fas fa-rocket"></i> Emerging Threats</h2>
+    <div class="card">
+      <ul>
+        <li>AI-powered phishing with deepfake voices and videos.</li>
+        <li>Quantum computing threatening classical encryption.</li>
+        <li>IoT and smart home device vulnerabilities.</li>
+        <li>Cloud misconfigurations causing data leaks.</li>
+      </ul>
+    </div>
+  </section>
+
+  <footer>
+    <p>© 2025 Cybersecurity Hub | Created for Education & Awareness</p>
+  </footer>
+
+  <script>
+    // 🌙 Dark Mode Toggle
+    document.getElementById("darkModeToggle").addEventListener("click", () => {
+      document.body.classList.toggle("dark-mode");
+    });
+
+    // ✨ Smooth Section Animation on Scroll
+    const sections = document.querySelectorAll("section");
+    window.addEventListener("scroll", () => {
+      sections.forEach((sec) => {
+        const rect = sec.getBoundingClientRect();
+        if (rect.top < window.innerHeight - 100) {
+          sec.style.opacity = "1";
+        }
+      });
+    });
+  </script>
+</body>
+</html>
