@@ -1,0 +1,380 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Secure Message Website</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        .hidden { display: none; }
+        .error { color: red; font-size: 0.9em; }
+        form { margin-bottom: 20px; }
+        input, textarea { display: block; margin: 10px 0; width: 300px; }
+        button { padding: 10px; }
+        #messageHistory, #inbox, #hackerDemo { margin-top: 20px; border: 1px solid #ccc; padding: 10px; max-height: 300px; overflow-y: auto; }
+        .message { margin-bottom: 10px; padding: 5px; background: #f9f9f9; position: relative; }
+        .inbox-message { background: #e9f7ef; }
+        .secure-indicator { color: green; font-weight: bold; }
+        .hacker-box { background: #ffe6e6; }
+        .close-btn { position: absolute; top: 5px; right: 5px; background: red; color: white; border: none; cursor: pointer; }
+    </style>
+</head>
+<body>
+    <h1>Secure Message Sender</h1>
+    
+    <!-- Toggle Buttons -->
+    <div id="toggleButtons">
+        <button id="showLogin">Login</button>
+        <button id="showRegister">Register</button>
+    </div>
+    
+    <!-- Login Form -->
+    <div id="loginForm">
+        <h2>Login</h2>
+        <form id="login">
+            <input type="text" id="loginUsername" placeholder="Username" required>
+            <input type="password" id="loginPassword" placeholder="Password" required>
+            <button type="submit">Login</button>
+            <div id="loginError" class="error hidden"></div>
+        </form>
+    </div>
+    
+    <!-- Register Form -->
+    <div id="registerForm" class="hidden">
+        <h2>Register</h2>
+        <form id="register">
+            <input type="text" id="regUsername" placeholder="Username (alphanumeric only)" required pattern="[a-zA-Z0-9]+">
+            <input type="password" id="regPassword" placeholder="Password (min 8 chars, include number & symbol)" required pattern="(?=.*\d)(?=.*[!@#$%^&*])(?=.*[a-zA-Z]).{8,}">
+            <button type="submit">Register</button>
+            <div id="registerError" class="error hidden"></div>
+        </form>
+    </div>
+    
+    <!-- Message Form, History, Inbox, and Hacker Demo (hidden until logged in) -->
+    <div id="messageForm" class="hidden">
+        <h2>Send a Message</h2>
+        <p>Logged in as: <span id="currentUser"></span></p>
+        <form id="sendMessage">
+            <input type="text" id="recipient" placeholder="Recipient Username" required>
+            <textarea id="message" placeholder="Enter your message (max 500 chars)" maxlength="500" required></textarea>
+            <button type="submit">Send Message</button>
+            <div id="messageError" class="error hidden"></div>
+        </form>
+        
+        <h3>Your Sent Messages</h3>
+        <div id="messageHistory">
+            <p>No messages sent yet.</p>
+        </div>
+        
+        <h3>Inbox (Received Messages)</h3>
+        <div id="inbox">
+            <p>No messages received yet.</p>
+        </div>
+        
+        <h3>Hacker Interception Demo</h3>
+        <div id="hackerDemo" class="hacker-box hidden">
+            <p><strong>What a Hacker Might Intercept:</strong> <span id="interceptedData"></span></p>
+            <input type="text" id="hackerKey" placeholder="Hacker's Guessed Key (shift value, e.g., 1-25)" value="1">
+            <button id="attemptDecrypt">Attempt to Decrypt (Hacker)</button>
+            <div id="decryptResult"></div>
+            <p class="error">Note: Without the correct key (3), the message remains unreadable!</p>
+        </div>
+        
+        <button id="logout">Logout</button>
+    </div>
+
+    <script>
+        // Caesar cipher encryption/decryption with key=3
+        const CAESAR_KEY = 3;
+        
+        function encryptMessage(text) {
+            let result = '';
+            for (let i = 0; i < text.length; i++) {
+                let char = text[i];
+                let code = char.charCodeAt(0);
+                if (char >= 'A' && char <= 'Z') {
+                    // Uppercase shift
+                    result += String.fromCharCode(((code - 65 + CAESAR_KEY) % 26) + 65);
+                } else if (char >= 'a' && char <= 'z') {
+                    // Lowercase shift
+                    result += String.fromCharCode(((code - 97 + CAESAR_KEY) % 26) + 97);
+                } else {
+                    // Non-letters: shift numerically (mod 256)
+                    result += String.fromCharCode((code + CAESAR_KEY) % 256);
+                }
+            }
+            return btoa(result); // Base64 encode for storage
+        }
+        
+        function decryptMessage(encrypted, key = CAESAR_KEY) {
+            try {
+                const decoded = atob(encrypted); // Base64 decode
+                let result = '';
+                for (let i = 0; i < decoded.length; i++) {
+                    let char = decoded[i];
+                    let code = char.charCodeAt(0);
+                    if (char >= 'A' && char <= 'Z') {
+                        // Uppercase unshift
+                        result += String.fromCharCode(((code - 65 - key + 26) % 26) + 65);
+                    } else if (char >= 'a' && char <= 'z') {
+                        // Lowercase unshift
+                        result += String.fromCharCode(((code - 97 - key + 26) % 26) + 97);
+                    } else {
+                        // Non-letters: unshift numerically
+                        result += String.fromCharCode((code - key + 256) % 256);
+                    }
+                }
+                return result;
+            } catch (e) {
+                console.error('Decryption failed:', e);
+                return '[Decryption Error]';
+            }
+        }
+        
+        // Simple hash for integrity check (basic checksum)
+        function generateHash(text) {
+            let hash = 0;
+            for (let i = 0; i < text.length; i++) {
+                hash += text.charCodeAt(i);
+            }
+            return hash.toString();
+        }
+        
+        // Function to sanitize input (basic XSS prevention)
+        function sanitizeInput(input) {
+            return input.replace(/[<>\"']/g, ''); // Remove potentially harmful chars
+        }
+        
+        // Function to get stored users from localStorage
+        function getStoredUsers() {
+            const users = localStorage.getItem('registeredUsers');
+            return users ? JSON.parse(users) : {};
+        }
+        
+        // Function to save users to localStorage
+        function saveUsers(users) {
+            localStorage.setItem('registeredUsers', JSON.stringify(users));
+        }
+        
+        // Function to get all stored messages (global for demo)
+        function getStoredMessages() {
+            const messages = localStorage.getItem('allMessages');
+            return messages ? JSON.parse(messages) : [];
+        }
+        
+        // Function to save all messages
+        function saveMessages(messages) {
+            localStorage.setItem('allMessages', JSON.stringify(messages));
+        }
+        
+        // Function to display sent message history
+        function displaySentMessages(user) {
+            const allMessages = getStoredMessages();
+            const sentMessages = allMessages.filter(msg => msg.sender === user);
+            const historyDiv = document.getElementById('messageHistory');
+            if (sentMessages.length === 0) {
+                historyDiv.innerHTML = '<p>No messages sent yet.</p>';
+                return;
+            }
+            historyDiv.innerHTML = sentMessages.map(msg => {
+                const decrypted = decryptMessage(msg.encryptedContent);
+                const isTampered = generateHash(decrypted) !== msg.hash;
+                return `<div class="message"><strong>To ${msg.recipient} at ${msg.timestamp}:</strong> ${decrypted} ${isTampered ? '<span class="error">(Tampered!)</span>' : '<span class="secure-indicator">(Securely Transmitted)</span>'}</div>`;
+            }).join('');
+        }
+        
+        // Function to display received messages (inbox) with close button
+        function displayInbox(user) {
+            const allMessages = getStoredMessages();
+            const receivedMessages = allMessages.filter(msg => msg.recipient === user);
+            const inboxDiv = document.getElementById('inbox');
+            if (receivedMessages.length === 0) {
+                inboxDiv.innerHTML = '<p>No messages received yet.</p>';
+                return;
+            }
+            inboxDiv.innerHTML = receivedMessages.map((msg, index) => {
+                const decrypted = decryptMessage(msg.encryptedContent);
+                const isTampered = generateHash(decrypted) !== msg.hash;
+                return `<div class="message inbox-message" data-index="${index}"><button class="close-btn" title="Close Message">×</button><strong>From ${msg.sender} at ${msg.timestamp}:</strong> ${decrypted} ${isTampered ? '<span class="error">(Tampered!)</span>' : '<span class="secure-indicator">(Securely Transmitted - No Interception Detected)</span>'}</div>`;
+            }).join('');
+            
+            // Add event listeners for close buttons
+            document.querySelectorAll('.close-btn').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    this.parentElement.style.display = 'none'; // Hide the message
+                });
+            });
+        }
+        
+        // Check if user is logged in on page load
+        const loggedInUser = localStorage.getItem('loggedInUser');
+        if (loggedInUser) {
+            showMessageForm(loggedInUser);
+        }
+        
+        // Toggle to Login Form
+        document.getElementById('showLogin').addEventListener('click', function() {
+            document.getElementById('loginForm').classList.remove('hidden');
+            document.getElementById('registerForm').classList.add('hidden');
+            clearErrors();
+        });
+        
+        // Toggle to Register Form
+        document.getElementById('showRegister').addEventListener('click', function() {
+            document.getElementById('registerForm').classList.remove('hidden');
+            document.getElementById('loginForm').classList.add('hidden');
+            clearErrors();
+        });
+        
+        // Register form handler with security checks
+        document.getElementById('register').addEventListener('submit', function(e) {
+            e.preventDefault();
+            const username = sanitizeInput(document.getElementById('regUsername').value.trim());
+            const password = document.getElementById('regPassword').value;
+            const errorDiv = document.getElementById('registerError');
+            
+            if (!username || !password) {
+                errorDiv.textContent = 'All fields are required.';
+                errorDiv.classList.remove('hidden');
+                return;
+            }
+            
+            const users = getStoredUsers();
+            if (users[username]) {
+                errorDiv.textContent = 'Username already exists!';
+                errorDiv.classList.remove('hidden');
+                console.warn('Registration attempt with existing username:', username);
+                return;
+            }
+            
+            // Register new user (in production, hash password server-side)
+            users[username] = password;
+            saveUsers(users);
+            alert('Registration successful! You can now log in.');
+            console.log('New user registered:', username);
+            
+            // Switch to login form
+            document.getElementById('showLogin').click();
+        });
+        
+        // Login form handler with security checks
+        document.getElementById('login').addEventListener('submit', function(e) {
+            e.preventDefault();
+            const username = sanitizeInput(document.getElementById('loginUsername').value);
+            const password = document.getElementById('loginPassword').value;
+            const errorDiv = document.getElementById('loginError');
+            
+            const users = getStoredUsers();
+            if (users[username] === password) {
+                localStorage.setItem('loggedInUser', username);
+                showMessageForm(username);
+                console.log('User logged in:', username);
+            } else {
+                errorDiv.textContent = 'Invalid credentials!';
+                errorDiv.classList.remove('hidden');
+                console.warn('Failed login attempt for username:', username);
+            }
+        });
+        
+        // Message form handler with security checks and Caesar encryption
+        document.getElementById('sendMessage').addEventListener('submit', function(e) {
+            e.preventDefault();
+            const recipient = sanitizeInput(document.getElementById('recipient').value.trim());
+            const message = sanitizeInput(document.getElementById('message').value.trim());
+            const sender = localStorage.getItem('loggedInUser');
+            const errorDiv = document.getElementById('messageError');
+            
+            if (!sender) {
+                errorDiv.textContent = 'You must be logged in to send messages.';
+                errorDiv.classList.remove('hidden');
+                return;
+            }
+            
+            if (!recipient || !message) {
+                errorDiv.textContent = 'Recipient and message are required.';
+                errorDiv.classList.remove('hidden');
+                return;
+            }
+            
+            const users = getStoredUsers();
+            if (!users[recipient]) {
+                errorDiv.textContent = 'Recipient does not exist.';
+                errorDiv.classList.remove('hidden');
+                return;
+            }
+            
+            if (recipient === sender) {
+                errorDiv.textContent = 'You cannot send a message to yourself.';
+                errorDiv.classList.remove('hidden');
+                return;
+            }
+            
+            // Encrypt and hash the message for secure "transmission"
+            const encrypted = encryptMessage(message);
+            const hash = generateHash(message);
+            const timestamp = new Date().toLocaleString();
+            
+            // Store the message (simulate secure transmission)
+            const allMessages = getStoredMessages();
+            allMessages.push({ sender, recipient, encryptedContent: encrypted, hash, timestamp });
+            saveMessages(allMessages);
+            
+            // Show intercepted data in hacker demo (the encrypted text)
+            document.getElementById('interceptedData').textContent = encrypted;
+            document.getElementById('hackerDemo').classList.remove('hidden');
+            document.getElementById('decryptResult').textContent = '';
+            
+            // Log transmission event (no updates/access in between)
+            console.log(`Secure transmission: Message from ${sender} to ${recipient} at ${timestamp} - Encrypted with Caesar cipher (key=3) and hashed. No interception detected.`);
+            
+            // Update displays
+            displaySentMessages(sender);
+            displayInbox(sender);
+            
+            alert('Message sent securely!');
+            document.getElementById('recipient').value = '';
+            document.getElementById('message').value = '';
+            clearErrors();
+        });
+        
+        // Hacker attempt to decrypt with guessed key
+        document.getElementById('attemptDecrypt').addEventListener('click', function() {
+            const guessedKey = parseInt(document.getElementById('hackerKey').value) || 0;
+            const encrypted = document.getElementById('interceptedData').textContent;
+            const resultDiv = document.getElementById('decryptResult');
+            
+            if (!encrypted) {
+                resultDiv.textContent = 'No data to decrypt!';
+                return;
+            }
+            
+            const attemptedDecrypt = decryptMessage(encrypted, guessedKey);
+            const isCorrect = guessedKey === CAESAR_KEY;
+            resultDiv.innerHTML = `<strong>Hacker's Attempted Read:</strong> ${attemptedDecrypt} ${isCorrect ? '<span class="secure-indicator">(Success - But this is cheating!)</span>' : '<span class="error">(Failed - Gibberish!)</span>'}`;
+            console.warn(`Hacker decryption attempt with key=${guessedKey}:`, attemptedDecrypt);
+        });
+        
+        // Logout handler
+        document.getElementById('logout').addEventListener('click', function() {
+            localStorage.removeItem('loggedInUser');
+            location.reload(); // Refresh to show login form
+        });
+        
+        // Function to clear error messages
+        function clearErrors() {
+            document.querySelectorAll('.error').forEach(el => el.classList.add('hidden'));
+        }
+        
+        // Function to show message form and hide others
+        function showMessageForm(user) {
+            document.getElementById('loginForm').classList.add('hidden');
+            document.getElementById('registerForm').classList.add('hidden');
+            document.getElementById('toggleButtons').classList.add('hidden');
+            document.getElementById('messageForm').classList.remove('hidden');
+            document.getElementById('currentUser').textContent = user;
+            displaySentMessages(user);
+            displayInbox(user);
+        }
+    </script>
+</body>
+</html>
